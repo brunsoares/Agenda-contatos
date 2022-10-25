@@ -4,13 +4,15 @@ import io.github.brunnsoares.agendaapi.model.entity.Contato;
 import io.github.brunnsoares.agendaapi.model.repository.ContatoRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -28,8 +30,13 @@ public class ContatoController {
     }
 
     @GetMapping
-    public List<Contato> buscarContatos(){
-        return repository.findAll();
+    public Page<Contato> buscarContatos(
+            @RequestParam(value = "pagina", defaultValue = "0") Integer pagina,
+            @RequestParam(value = "tamanho", defaultValue = "10") Integer tamanho
+    ){
+        Sort sort = Sort.by(Sort.Direction.ASC,"id");
+        PageRequest pageRequest = PageRequest.of(pagina, tamanho, sort);
+        return repository.findAll(pageRequest);
     }
 
     @PatchMapping("{id}/favorito")
